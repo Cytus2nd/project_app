@@ -8,7 +8,7 @@ if (isset($_POST['tambah_tenaga_ahli'])) {
     $sql_tambah = "INSERT INTO tenaga_ahli (nama_tenaga_ahli, keahlian, id_user, status) 
                    VALUES ('$nama_tenaga_ahli', '$keahlian', '$id_user', 'aktif')";
     if ($conn->query($sql_tambah)) {
-        echo "<script>alert('Tenaga Ahli berhasil ditambahkan!');</script>";
+        echo "<script>alert('Tenaga Ahli berhasil ditambahkan!'); red</script>";
     } else {
         echo "<script>alert('Gagal menambahkan Tenaga Ahli.');</script>";
     }
