@@ -15,7 +15,7 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg bg-body-tertiary shadow">
+    <nav class="navbar navbar-expand-lg bg-body-tertiary shadow sticky-top">
         <div class="container-fluid">
             <a class="navbar-brand">
                 <img src="assets/img/logo.png" alt="" width="60" height="48" class="d-inline-block align-text-center">
@@ -29,7 +29,7 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0 mx-auto">
                     <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="index.php">Halaman Utama</a>
+                        <a class="nav-link" aria-current="page" href="dashboard.php">Halaman Utama</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" aria-current="" href="project.php">Project</a>

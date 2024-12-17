@@ -1,5 +1,13 @@
 <?php
 session_start();
+
+if (!isset($_SESSION['login'])) {
+    echo "<script>
+            alert('Anda harus login terlebih dahulu!');
+            document.location.href = 'index.php';
+          </script>";
+    exit;
+}
 $title = 'Detail Project';
 include 'layout/header.php';
 include 'backend/sc_detail.php';
@@ -32,7 +40,7 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
 <div class="container mt-4">
     <section>
         <h3>Detail Project: <?= htmlspecialchars($project['nama_proyek']); ?></h3>
-        <p><a class="text-decoration-none text-dark" href="index.php">Halaman Utama</a> > <a class="text-decoration-none text-dark" href="project.php">Project</a> > Detail Project</p>
+        <p><a class="text-decoration-none text-dark" href="dashboard.php">Halaman Utama</a> > <a class="text-decoration-none text-dark" href="project.php">Project</a> > Detail Project</p>
 
         <!-- Form Tambah Fase -->
         <button type="button" class="btn btn-primary mb-3 mt-3" data-bs-toggle="modal" data-bs-target="#modalTambahFase">Tambah Fase</button>
@@ -59,9 +67,11 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
                             <td class="w-50">
                                 <?php
                                 $fase_id = $fase['id'];
-                                $sql_kegiatan = "SELECT kegiatan.*, tenaga_ahli.nama_tenaga_ahli FROM kegiatan 
-                                                    JOIN tenaga_ahli ON kegiatan.id_tenaga_ahli = tenaga_ahli.id 
-                                                    WHERE kegiatan.id_fase = $fase_id";
+                                $sql_kegiatan = "SELECT kegiatan.*, tenaga_ahli.nama_tenaga_ahli, tenaga_ahli.keahlian 
+                                FROM kegiatan 
+                                JOIN tenaga_ahli ON kegiatan.id_tenaga_ahli = tenaga_ahli.id 
+                                WHERE kegiatan.id_fase = $fase_id
+                                ORDER BY kegiatan.id ASC";
                                 $result_kegiatan = $conn->query($sql_kegiatan);
                                 $noe = 1;
                                 if ($result_kegiatan->num_rows > 0) :
@@ -72,7 +82,7 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
                                         echo "<li><strong>Waktu:</strong> " . date('d/m/Y', strtotime($kegiatan['tanggal_mulai_kegiatan'])) . " sampai " . date('d/m/Y', strtotime($kegiatan['tanggal_selesai_kegiatan'])) . "</li>";
                                         echo "<li><strong>Biaya:</strong> Rp " . number_format($kegiatan['biaya'], 0, ',', '.') . "</li>";
                                         echo "<li><strong>Keterangan:</strong> " . htmlspecialchars($kegiatan['keterangan']) . "</li>";
-                                        echo "<li><strong>Tenaga Ahli:</strong> " . htmlspecialchars($kegiatan['nama_tenaga_ahli']) . "</li>";
+                                        echo "<li><strong>Tenaga Ahli:</strong> " . htmlspecialchars($kegiatan['nama_tenaga_ahli']) . " - " . htmlspecialchars($kegiatan['keahlian']) . "</li>";
                                         echo "</ul>";
                                         echo "<button type='button' class='btn btn-success' data-bs-toggle='modal' data-bs-target='#modalUbahKegiatan{$kegiatan['id']}'>Ubah Kegiatan</button>";
                                         echo "<button type='button' class='btn btn-danger mx-2' data-bs-toggle='modal' data-bs-target='#modalHapusKegiatan{$kegiatan['id']}'>Hapus Kegiatan</button>";
@@ -95,11 +105,11 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
                                         echo "<div class='mb-3'><label for='biaya'>Biaya</label><input type='number' name='biaya' id='biaya' class='form-control' value='" . htmlspecialchars($kegiatan['biaya']) . "'></div>";
                                         echo "<div class='mb-3'><label for='keterangan'>Keterangan</label><input type='text' name='keterangan' id='keterangan' class='form-control' value='" . htmlspecialchars($kegiatan['keterangan']) . "'></div>";
                                         echo "<div class='mb-3'><label for='id_tenaga_ahli'>Tenaga Ahli</label><select name='id_tenaga_ahli' id='id_tenaga_ahli' class='form-select'>";
-                                        $sql_tenaga_ahli = "SELECT * FROM tenaga_ahli";
+                                        $sql_tenaga_ahli = "SELECT * FROM tenaga_ahli WHERE status = 1";
                                         $result_tenaga_ahli = $conn->query($sql_tenaga_ahli);
                                         while ($tenaga = $result_tenaga_ahli->fetch_assoc()) {
-                                            $selected = ($tenaga['id'] == $kegiatan['id_tenaga_ahli']) ? 'selected' : '';
-                                            echo "<option value='" . $tenaga['id'] . "' $selected>" . htmlspecialchars($tenaga['nama_tenaga_ahli']) . "</option>";
+                                            $selected = (isset($kegiatan['id_tenaga_ahli']) && $tenaga['id'] == $kegiatan['id_tenaga_ahli']) ? 'selected' : '';
+                                            echo "<option value='" . $tenaga['id'] . "' $selected>" . htmlspecialchars($tenaga['nama_tenaga_ahli']) . " - " . htmlspecialchars($tenaga['keahlian']) . "</option>";
                                         }
                                         echo "</select></div>";
                                         echo "<div class='modal-footer'>";
@@ -236,17 +246,19 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
 
                                             <div class="mb-3">
                                                 <label for="id_tenaga_ahli">Tenaga Ahli</label>
-                                                <select name="id_tenaga_ahli" id="id_tenaga_ahli" class="form-select">
+                                                <select name="id_tenaga_ahli" id="id_tenaga_ahli" class="form-select" required>
+                                                    <option value="" disabled selected>Pilih Tenaga Ahli</option>
                                                     <?php
-                                                    $sql_tenaga_ahli = "SELECT * FROM tenaga_ahli";
+                                                    // Ambil hanya tenaga ahli yang aktif
+                                                    $sql_tenaga_ahli = "SELECT * FROM tenaga_ahli WHERE status = 1";
                                                     $result_tenaga_ahli = $conn->query($sql_tenaga_ahli);
                                                     while ($tenaga = $result_tenaga_ahli->fetch_assoc()) {
-                                                        echo "<option value='" . $tenaga['id'] . "'>" . htmlspecialchars($tenaga['nama_tenaga_ahli']) . "</option>";
+                                                        $selected = (isset($kegiatan['id_tenaga_ahli']) && $tenaga['id'] == $kegiatan['id_tenaga_ahli']) ? 'selected' : '';
+                                                        echo "<option value='" . $tenaga['id'] . "' $selected>" . htmlspecialchars($tenaga['nama_tenaga_ahli']) . " - " . htmlspecialchars($tenaga['keahlian']) . "</option>";
                                                     }
                                                     ?>
                                                 </select>
                                             </div>
-
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Kembali</button>
                                                 <button type="submit" name="tambah_kegiatan" class="btn btn-primary">Tambah Kegiatan</button>

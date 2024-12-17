@@ -1,0 +1,17 @@
+body {
+    background-image: url('../img/bg.jpg'); /* Default background */
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-attachment: fixed;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+}
+
+/* Media query untuk layar dengan lebar maksimum 768px (ukuran tablet atau HP) */
+@media (max-width: 768px) {
+    body {
+        background-image: url('../img/bg-log-hp.jpeg'); /* Ganti dengan path gambar untuk HP */
+    }
+}

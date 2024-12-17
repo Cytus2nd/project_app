@@ -1,5 +1,13 @@
 <?php
 session_start();
+
+if (!isset($_SESSION['login'])) {
+    echo "<script>
+            alert('Anda harus login terlebih dahulu!');
+            document.location.href = 'index.php';
+          </script>";
+    exit;
+}
 $title = 'RAB Project';
 include 'layout/header.php';
 include 'backend/sc_rab.php';
@@ -50,7 +58,7 @@ $result_kegiatan = $conn->query($sql_kegiatan);
 <div class="container mt-4">
     <h3 class="mb-2">RAB Project: <?= htmlspecialchars($project['nama_proyek']); ?></h3>
     <p class="mb-3">
-        <a class="text-decoration-none text-dark" href="index.php">Halaman Utama</a> >
+        <a class="text-decoration-none text-dark" href="dashboard.php">Halaman Utama</a> >
         <a class="text-decoration-none text-dark" href="project.php?id=<?= $id_proyek ?>">Project</a> > RAB
     </p>
     <!-- Tabel Kegiatan -->

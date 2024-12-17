@@ -1,21 +1,31 @@
 <?php
 session_start();
+
+if (!isset($_SESSION['login'])) {
+    echo "<script>
+            alert('Anda harus login terlebih dahulu!');
+            document.location.href = 'index.php';
+          </script>";
+    exit;
+}
+$id_user = $_SESSION['id_user'];
+
 $title = 'Daftar Project';
 include 'layout/header.php';
 include 'backend/sc_project.php';
-$sql = "SELECT * FROM proyek";
+$sql = "SELECT * FROM proyek WHERE id_user = $id_user";
 $result = $conn->query($sql);
 ?>
 <div class="container mt-4">
     <section>
         <h3>Daftar Project</h3>
-        <p><a class="text-decoration-none text-dark" href="index.php">Halaman Utama</a> > <a class="text-decoration-none text-dark" href="project.php">Project</a></p>
+        <p><a class="text-decoration-none text-dark" href="dashboard.php">Halaman Utama</a> > <a class="text-decoration-none text-dark" href="project.php">Project</a></p>
         <button type="button" class="btn btn-primary mb-3 mt-3" data-bs-toggle="modal" data-bs-target="#modalTambahPr">Tambah Project</button>
         <table class="table table-bordered table-light table-striped" id="tabel">
             <thead>
                 <tr>
                     <th>No</th>
-                    <th>Nama Project</th>
+                    <th class="col-3">Nama Project</th>
                     <th>RAB</th>
                     <th>Tanggal Mulai</th>
                     <th>Tanggal Selesai</th>
@@ -28,8 +38,8 @@ $result = $conn->query($sql);
                     <?php while ($row = $result->fetch_assoc()) : ?>
                         <tr>
                             <td><?= $no++; ?></td>
-                            <td><?= htmlspecialchars($row['nama_proyek']); ?></td>
-                            <td><?= htmlspecialchars($row['rab']); ?></td>
+                            <td class="col-3" style="max-width: 200px;"><?= htmlspecialchars($row['nama_proyek']); ?></td>
+                            <td>Rp <?= number_format($row['rab'], 0, ',', '.'); ?></td>
                             <td><?= date('d/m/Y', strtotime($row['tanggal_mulai'])); ?></td>
                             <td><?= date('d/m/Y', strtotime($row['tanggal_selesai'])); ?></td>
                             <td class="text-center">
@@ -103,7 +113,7 @@ $result = $conn->query($sql);
                     <?php endwhile; ?>
                 <?php else : ?>
                     <tr>
-                        <td colspan="5" class="text-center">Tidak ada Project yang tersedia</td>
+                        <td colspan="8" class="text-center">Tidak ada Project yang tersedia</td>
                     </tr>
                 <?php endif; ?>
             </tbody>
@@ -120,7 +130,7 @@ $result = $conn->query($sql);
             </div>
             <div class="modal-body">
                 <form action="" method="POST">
-                    <input type="hidden" name="id_user" value="1">
+                    <input type="hidden" name="id_user" value="<?= htmlspecialchars($id_user); ?>">
                     <div class="mb-3">
                         <label for="nama_proyek">Nama Project</label>
                         <input type="text" name="nama_proyek" id="nama_proyek" class="form-control" required>
